@@ -3,6 +3,7 @@ package cli
 import (
 	"bufio"
 	"fmt"
+	beer "github.com/CodelyTV/golang-examples/02-refactor-to-cobra/internal"
 	"os"
 	"strconv"
 	"strings"
@@ -12,12 +13,6 @@ import (
 
 // CobraFn function definion of run cobra command
 type CobraFn func(cmd *cobra.Command, args []string)
-
-var beers = map[string]string{
-	"01D9X58E7NPXX5MVCR9QN794CH": "Mad Jack Mixer",
-	"01D9X5BQ5X48XMMVZ2F2G3R5MS": "Keystone Ice",
-	"01D9X5CVS1M9VR5ZD627XDF6ND": "Belgian Moon",
-}
 
 const idFlag = "id"
 
@@ -40,27 +35,28 @@ func runBeersFn() CobraFn {
 
 		i, _ := cmd.Flags().GetString(idFlag)
 		id, _ := strconv.Atoi(i)
-		println(id)
 
 		if id != 0 {
-			fmt.Println(beers[id])
+			fmt.Println(beers[id].String())
 		} else {
 			fmt.Println(beers)
 		}
 	}
 }
 
-func readFile() map[int]string {
+func readFile() map[int]beer.Beer {
 	f, _ := os.Open("../../data/beers.csv")
 	reader := bufio.NewReader(f)
-	beers := make(map[int]string)
+	beers := make(map[int]beer.Beer)
 
 	for line := readLine(reader); line != nil; line = readLine(reader) {
 		values := strings.Split(string(line), ",")
-		beerId, _ := strconv.Atoi(values[0])
 
-		beers[beerId] = values[1]
+		beerId, _ := strconv.Atoi(values[0])
+		beerPrice, _ := strconv.ParseFloat(values[3], 8)
+		beers[beerId] = beer.NewBeer(beerId, values[1], values[2], beerPrice, values[4], values[5], values[6])
 	}
+
 	return beers
 }
 
