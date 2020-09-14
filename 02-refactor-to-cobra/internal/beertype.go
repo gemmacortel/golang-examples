@@ -1,29 +1,39 @@
 package internal
 
+import (
+	"encoding/json"
+)
+
 type BeerType int
 
 const (
 	Unknown BeerType = iota
-	Larger
+	Lager
 	Malt
 	Ale
 	NonAlcoholic
+	Stout
+	FlavouredMalt
 )
 
 var toId = map[string]BeerType{
-	"Unknown":      Unknown,
-	"Larger":       Larger,
-	"Malt":         Malt,
-	"Ale":          Ale,
-	"NonAlcoholic": NonAlcoholic,
+	"Unknown":        Unknown,
+	"Lager":          Lager,
+	"Malt":           Malt,
+	"Ale":            Ale,
+	"NonAlcoholic":   NonAlcoholic,
+	"Stout":          Stout,
+	"Flavoured Malt": FlavouredMalt,
 }
 
 var toString = map[BeerType]string{
-	Unknown:      "Unknown",
-	Larger:       "Larger",
-	Malt:         "Malt",
-	Ale:          "Ale",
-	NonAlcoholic: "NonAlcoholic",
+	Unknown:       "Unknown",
+	Lager:         "Lager",
+	Malt:          "Malt",
+	Ale:           "Ale",
+	NonAlcoholic:  "NonAlcoholic",
+	Stout:         "Stout",
+	FlavouredMalt: "Flavoured Malt",
 }
 
 func NewBeerType(t string) *BeerType {
@@ -31,6 +41,18 @@ func NewBeerType(t string) *BeerType {
 	return &beerType
 }
 
-func (b BeerType) String() string {
-	return toString[b]
+func (t BeerType) String() string {
+	return toString[t]
+}
+
+func (t *BeerType) UnmarshalJSON(b []byte) error {
+	var beerTypeName string
+	e := json.Unmarshal(b, &beerTypeName)
+	if nil != e {
+		return e
+	}
+
+	*t = toId[beerTypeName]
+
+	return nil
 }
